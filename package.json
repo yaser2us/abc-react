@@ -1,6 +1,6 @@
 {
   "name": "abc-react",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "It is abc testing platform.",
   "author": "yaser2us",
   "license": "MIT",
@@ -26,7 +26,7 @@
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
+    "react": "^16.8.6 || ^17.0.0 || ^17.0.1 || ^17.0.2 || ^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
