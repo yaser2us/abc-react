@@ -76,7 +76,7 @@ import {
     }, [model.misc.abcEnable, model.misc.iamABCTester]);
   
     const evaluateFeatures = () => {
-      if (iamABCTester) {
+      if (iamABCTester && model.misc.abcEnable) {
         allFeatures = gb.getFeatures();
         console.log(iamABCTester, "evaluateFeatures gbs", allFeatures);
   
