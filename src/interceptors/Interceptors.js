@@ -1,29 +1,31 @@
-import { get, merge } from "lodash";
+import { merge } from "lodash";
 
 import {
-    mergeHeaders,
     addQuarantineSegmentToUrl,
     mapUrls
 } from "../tools"
 
-function responseInterceptor({ getModel, response }) {
+function responseInterceptor({ getModel, response, debug = false }) {
     // Modify the response data here mapUrls
-    // const { getModel } = ApiManager.context.controller;
     try {
         const dictionary = getModel(["response"])?.response || {};
         const responseUrl = response.config.url;
 
         response = merge(response, mapUrls(responseUrl, dictionary));
-        console.log("[responseInterceptor] Request URL:", responseUrl);
-        console.log("[responseInterceptor] context", getModel(["response"])?.response);
-        console.log("[responseInterceptor] data", response?.data);
+        if (debug) {
+            console.log("[responseInterceptor] Request URL:", responseUrl);
+            console.log("[responseInterceptor] context", getModel(["response"])?.response);
+            console.log("[responseInterceptor] data", response?.data);
+        }
         return response;
-    } catch(error) {
-        console.log('[responseInterceptor]', error)
+    } catch (error) {
+        if (debug) {
+            console.log('[responseInterceptor]', error)
+        }
         return response
     }
 }
-function requestInterceptor({ getModel, request }) {
+function requestInterceptor({ getModel, request, debug = false }) {
     // Modify the response data here mapUrls
     try {
         const dictionary = getModel(["api"])?.api || {};
@@ -42,21 +44,21 @@ function requestInterceptor({ getModel, request }) {
         if (requests.enabled) {
             //merge prefix with url
             request.url = addQuarantineSegmentToUrl(request.url, requests.prefix);
-            //merge existing header with new one
-            // request.headers = mergeHeaders(request.headers, {
-            //     ...requests?.headers,
-            // });
         }
-        console.log(
-            requests,
-            request?.headers,
-            requests?.enabled,
-            request?.url,
-            "[requestInterceptor] details"
-        );
+        if (debug) {
+            console.log(
+                requests,
+                request?.headers,
+                requests?.enabled,
+                request?.url,
+                "[requestInterceptor] details"
+            );
+        }
         return request;
-    } catch(error) {
-        console.log('[requestInterceptor] error:',error)
+    } catch (error) {
+        if (debug) {
+            console.log('[requestInterceptor] error:', error)
+        }
         return request
     }
 }
