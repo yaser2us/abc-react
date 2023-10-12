@@ -81,6 +81,10 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
       }).then(() => {
         setIsReady(true);
       });
+      gb.setAttributes({
+        ...abcDefaultAttributes,
+        scope: abcScope
+      });
     }
   }, [model.misc.abcEnable, model.misc.iamABCTester]);
 
@@ -108,11 +112,6 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
     if (!isReady) {
       return;
     }
-
-    gb.setAttributes({
-      ...abcDefaultAttributes,
-      scope: abcScope
-    });
 
     evaluateFeatures();
   }, [isReady, model.misc.iamABCTester]);

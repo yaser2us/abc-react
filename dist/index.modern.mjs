@@ -131,6 +131,9 @@ const ABCProvider = ({
       }).then(() => {
         setIsReady(true);
       });
+      gb.setAttributes(_extends({}, abcDefaultAttributes, {
+        scope: abcScope
+      }));
     }
   }, [model.misc.abcEnable, model.misc.iamABCTester]);
   const evaluateFeatures = () => {
@@ -154,9 +157,6 @@ const ABCProvider = ({
     if (!isReady) {
       return;
     }
-    gb.setAttributes(_extends({}, abcDefaultAttributes, {
-      scope: abcScope
-    }));
     evaluateFeatures();
   }, [isReady, model.misc.iamABCTester]);
   return /*#__PURE__*/React.createElement(GrowthBookProvider, {
