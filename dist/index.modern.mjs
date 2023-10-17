@@ -73,13 +73,15 @@ const ABCProvider = ({
 }) => {
   const {
     misc: {
-      iamABCTester,
-      abcScope,
-      abcEndpoint,
-      abcEnable,
-      abcSdk,
-      abcTimeout = 30000,
-      abcDefaultAttributes = {}
+      abcTesting: {
+        iamABCTester,
+        abcScope,
+        abcEndpoint,
+        abcEnable,
+        abcSdk,
+        abcTimeout = 30000,
+        abcDefaultAttributes = {}
+      }
     }
   } = getModel(["misc"]);
 
@@ -114,7 +116,7 @@ const ABCProvider = ({
     }
   }, [abcEndpoint, iamABCTester]);
   useEffect(() => {
-    if (iamABCTester && model.misc.abcEnable) {
+    if (iamABCTester && model.misc.abcTesting.abcEnable) {
       if (analytic && analytic instanceof Function) {
         try {
           logEvent("view_screen", {
@@ -135,9 +137,9 @@ const ABCProvider = ({
         scope: abcScope
       }));
     }
-  }, [model.misc.abcEnable, model.misc.iamABCTester]);
+  }, [model.misc.abcTesting.abcEnable, model.misc.abcTesting.iamABCTester]);
   const evaluateFeatures = () => {
-    if (iamABCTester && model.misc.abcEnable) {
+    if (iamABCTester && model.misc.abcTesting.abcEnable) {
       const allFeatures = gb.getFeatures();
       let done = {};
       Object.keys(allFeatures).map(key => {
@@ -158,7 +160,7 @@ const ABCProvider = ({
       return;
     }
     evaluateFeatures();
-  }, [isReady, model.misc.iamABCTester]);
+  }, [isReady, model.misc.abcTesting.iamABCTester]);
   return /*#__PURE__*/React.createElement(GrowthBookProvider, {
     growthbook: gb
   }, Children.map(arrayChildren, child => {

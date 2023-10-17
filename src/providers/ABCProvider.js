@@ -18,13 +18,15 @@ import {
 const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug = false }) => {
   const {
     misc: {
-      iamABCTester,
-      abcScope,
-      abcEndpoint,
-      abcEnable,
-      abcSdk,
-      abcTimeout = 30000,
-      abcDefaultAttributes = {}
+      abcTesting: {
+        iamABCTester,
+        abcScope,
+        abcEndpoint,
+        abcEnable,
+        abcSdk,
+        abcTimeout = 30000,
+        abcDefaultAttributes = {}
+      }
     },
   } = getModel(["misc"]);
 
@@ -64,14 +66,14 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
   );
 
   useEffect(() => {
-    if (iamABCTester && model.misc.abcEnable) {
+    if (iamABCTester && model.misc.abcTesting.abcEnable) {
       if (analytic && analytic instanceof Function) {
         try {
           logEvent("view_screen", {
             "screen_name": "abc-platform"
           });
         } catch (error) {
-          if(debug){
+          if (debug) {
             console.log(error);
           }
         }
@@ -86,10 +88,10 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
         scope: abcScope
       });
     }
-  }, [model.misc.abcEnable, model.misc.iamABCTester]);
+  }, [model.misc.abcTesting.abcEnable, model.misc.abcTesting.iamABCTester]);
 
   const evaluateFeatures = () => {
-    if (iamABCTester && model.misc.abcEnable) {
+    if (iamABCTester && model.misc.abcTesting.abcEnable) {
       const allFeatures = gb.getFeatures();
 
       let done = {};
@@ -114,7 +116,7 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
     }
 
     evaluateFeatures();
-  }, [isReady, model.misc.iamABCTester]);
+  }, [isReady, model.misc.abcTesting.iamABCTester]);
 
   return (
     <GrowthBookProvider growthbook={gb}>

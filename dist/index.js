@@ -80,15 +80,15 @@ var ABCProvider = function ABCProvider(_ref) {
     _ref$debug = _ref.debug,
     debug = _ref$debug === void 0 ? false : _ref$debug;
   var _getModel = getModel(["misc"]),
-    _getModel$misc = _getModel.misc,
-    iamABCTester = _getModel$misc.iamABCTester,
-    abcScope = _getModel$misc.abcScope,
-    abcEndpoint = _getModel$misc.abcEndpoint,
-    abcSdk = _getModel$misc.abcSdk,
-    _getModel$misc$abcTim = _getModel$misc.abcTimeout,
-    abcTimeout = _getModel$misc$abcTim === void 0 ? 30000 : _getModel$misc$abcTim,
-    _getModel$misc$abcDef = _getModel$misc.abcDefaultAttributes,
-    abcDefaultAttributes = _getModel$misc$abcDef === void 0 ? {} : _getModel$misc$abcDef;
+    _getModel$misc$abcTes = _getModel.misc.abcTesting,
+    iamABCTester = _getModel$misc$abcTes.iamABCTester,
+    abcScope = _getModel$misc$abcTes.abcScope,
+    abcEndpoint = _getModel$misc$abcTes.abcEndpoint,
+    abcSdk = _getModel$misc$abcTes.abcSdk,
+    _getModel$misc$abcTes2 = _getModel$misc$abcTes.abcTimeout,
+    abcTimeout = _getModel$misc$abcTes2 === void 0 ? 30000 : _getModel$misc$abcTes2,
+    _getModel$misc$abcTes3 = _getModel$misc$abcTes.abcDefaultAttributes,
+    abcDefaultAttributes = _getModel$misc$abcTes3 === void 0 ? {} : _getModel$misc$abcTes3;
 
   // console.log(iamABCTester, abcScope, abcSdk, "[ABCProvider] iamABCTester", abcEnable);
 
@@ -123,7 +123,7 @@ var ABCProvider = function ABCProvider(_ref) {
     }
   }, [abcEndpoint, iamABCTester]);
   React.useEffect(function () {
-    if (iamABCTester && model.misc.abcEnable) {
+    if (iamABCTester && model.misc.abcTesting.abcEnable) {
       if (analytic && analytic instanceof Function) {
         try {
           logEvent("view_screen", {
@@ -144,9 +144,9 @@ var ABCProvider = function ABCProvider(_ref) {
         scope: abcScope
       }));
     }
-  }, [model.misc.abcEnable, model.misc.iamABCTester]);
+  }, [model.misc.abcTesting.abcEnable, model.misc.abcTesting.iamABCTester]);
   var evaluateFeatures = function evaluateFeatures() {
-    if (iamABCTester && model.misc.abcEnable) {
+    if (iamABCTester && model.misc.abcTesting.abcEnable) {
       var allFeatures = gb.getFeatures();
       var done = {};
       Object.keys(allFeatures).map(function (key) {
@@ -167,7 +167,7 @@ var ABCProvider = function ABCProvider(_ref) {
       return;
     }
     evaluateFeatures();
-  }, [isReady, model.misc.iamABCTester]);
+  }, [isReady, model.misc.abcTesting.iamABCTester]);
   return /*#__PURE__*/React__default["default"].createElement(growthbookReact.GrowthBookProvider, {
     growthbook: gb
   }, React.Children.map(arrayChildren, function (child) {
