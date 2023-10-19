@@ -69,28 +69,32 @@ const ABCProvider = ({
   updateModel,
   model,
   analytic,
-  debug: _debug = false
+  debug: _debug = false,
+  event: {
+    eventType: _eventType = "view_screen",
+    eventName: _eventName = "screen_name",
+    eventValue: _eventValue = "abc-platform"
+  } = {}
 }) => {
+  var _model$misc4, _model$misc5, _model$misc7;
   const {
     misc: {
       abcTesting: {
-        iamABCTester,
-        abcScope,
+        iamABCTester = false,
+        abcScope = 888888,
         abcEndpoint,
-        abcEnable,
+        // abcEnable,
         abcSdk,
         abcTimeout = 30000,
         abcDefaultAttributes = {}
-      }
+      } = {}
     }
   } = getModel(["misc"]);
-
-  // console.log(iamABCTester, abcScope, abcSdk, "[ABCProvider] iamABCTester", abcEnable);
-
   const [isReady, setIsReady] = useState(false);
   const arrayChildren = Children.toArray(children);
   const gb = useMemo(() => {
-    if (iamABCTester) {
+    var _model$misc;
+    if (iamABCTester && model != null && (_model$misc = model.misc) != null && (_model$misc = _model$misc.abcTesting) != null && _model$misc.abcEnable) {
       // console.log(iamABCTester, "iamABCTesteriamABCTester useMemo");
       const gb = new GrowthBook({
         apiHost: abcEndpoint,
@@ -116,11 +120,12 @@ const ABCProvider = ({
     }
   }, [abcEndpoint, iamABCTester]);
   useEffect(() => {
-    if (iamABCTester && model.misc.abcTesting.abcEnable) {
+    var _model$misc2, _model$misc3;
+    if (model != null && (_model$misc2 = model.misc) != null && (_model$misc2 = _model$misc2.abcTesting) != null && _model$misc2.iamABCTester && model != null && (_model$misc3 = model.misc) != null && (_model$misc3 = _model$misc3.abcTesting) != null && _model$misc3.abcEnable) {
       if (analytic && analytic instanceof Function) {
         try {
-          logEvent("view_screen", {
-            "screen_name": "abc-platform"
+          logEvent(_eventType, {
+            [_eventName]: _eventValue
           });
         } catch (error) {
           if (_debug) {
@@ -137,22 +142,29 @@ const ABCProvider = ({
         scope: abcScope
       }));
     }
-  }, [model.misc.abcTesting.abcEnable, model.misc.abcTesting.iamABCTester]);
+  }, [model == null || (_model$misc4 = model.misc) == null || (_model$misc4 = _model$misc4.abcTesting) == null ? void 0 : _model$misc4.abcEnable, model == null || (_model$misc5 = model.misc) == null || (_model$misc5 = _model$misc5.abcTesting) == null ? void 0 : _model$misc5.iamABCTester]);
   const evaluateFeatures = () => {
-    if (iamABCTester && model.misc.abcTesting.abcEnable) {
-      const allFeatures = gb.getFeatures();
-      let done = {};
-      Object.keys(allFeatures).map(key => {
-        const result = gb.getFeatureValue(key, allFeatures[key].defaultValue);
-        done[key] = {
-          defaultValue: allFeatures[key].defaultValue,
-          result
-        };
-      });
+    var _model$misc6;
+    if (iamABCTester && model != null && (_model$misc6 = model.misc) != null && (_model$misc6 = _model$misc6.abcTesting) != null && _model$misc6.abcEnable) {
+      try {
+        const allFeatures = gb.getFeatures();
+        let done = {};
+        Object.keys(allFeatures).map(key => {
+          const result = gb.getFeatureValue(key, allFeatures[key].defaultValue);
+          done[key] = {
+            defaultValue: allFeatures[key].defaultValue,
+            result
+          };
+        });
 
-      // Call the function to group by prefix
-      const groupedData = groupByPrefixAndStructure(done);
-      updateModel(_extends({}, groupedData));
+        // Call the function to group by prefix
+        const groupedData = groupByPrefixAndStructure(done);
+        updateModel(_extends({}, groupedData));
+      } catch (error) {
+        if (_debug) {
+          console.log(error);
+        }
+      }
     }
   };
   useEffect(() => {
@@ -160,7 +172,7 @@ const ABCProvider = ({
       return;
     }
     evaluateFeatures();
-  }, [isReady, model.misc.abcTesting.iamABCTester]);
+  }, [isReady, model == null || (_model$misc7 = model.misc) == null || (_model$misc7 = _model$misc7.abcTesting) == null ? void 0 : _model$misc7.iamABCTester]);
   return /*#__PURE__*/React.createElement(GrowthBookProvider, {
     growthbook: gb
   }, Children.map(arrayChildren, child => {

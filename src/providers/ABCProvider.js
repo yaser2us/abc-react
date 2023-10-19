@@ -15,22 +15,32 @@ import {
   groupByPrefixAndStructure
 } from "../tools"
 
-const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug = false }) => {
+const ABCProvider = ({ 
+  children, 
+  getModel, 
+  updateModel, 
+  model,
+  analytic, 
+  debug = false,
+  event: {
+    eventType = "view_screen",
+    eventName = "screen_name",
+    eventValue = "abc-platform"
+  } = {}
+}) => {
   const {
     misc: {
       abcTesting: {
-        iamABCTester,
-        abcScope,
+        iamABCTester = false,
+        abcScope = 888888,
         abcEndpoint,
-        abcEnable,
+        // abcEnable,
         abcSdk,
         abcTimeout = 30000,
         abcDefaultAttributes = {}
-      }
+      } = {}
     },
   } = getModel(["misc"]);
-
-  // console.log(iamABCTester, abcScope, abcSdk, "[ABCProvider] iamABCTester", abcEnable);
 
   const [isReady, setIsReady] = useState(false);
 
@@ -38,7 +48,7 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
 
   const gb = useMemo(
     () => {
-      if (iamABCTester) {
+      if (iamABCTester && model?.misc?.abcTesting?.abcEnable) {
         // console.log(iamABCTester, "iamABCTesteriamABCTester useMemo");
         const gb = new GrowthBook({
           apiHost: abcEndpoint,
@@ -66,11 +76,11 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
   );
 
   useEffect(() => {
-    if (iamABCTester && model.misc.abcTesting.abcEnable) {
+    if (model?.misc?.abcTesting?.iamABCTester && model?.misc?.abcTesting?.abcEnable) {
       if (analytic && analytic instanceof Function) {
         try {
-          logEvent("view_screen", {
-            "screen_name": "abc-platform"
+          logEvent(eventType, {
+            [eventName]: eventValue
           });
         } catch (error) {
           if (debug) {
@@ -78,6 +88,7 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
           }
         }
       }
+
       gb.loadFeatures({
         timeout: abcTimeout,
       }).then(() => {
@@ -88,25 +99,32 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
         scope: abcScope
       });
     }
-  }, [model.misc.abcTesting.abcEnable, model.misc.abcTesting.iamABCTester]);
+  }, [model?.misc?.abcTesting?.abcEnable, model?.misc?.abcTesting?.iamABCTester]);
 
   const evaluateFeatures = () => {
-    if (iamABCTester && model.misc.abcTesting.abcEnable) {
-      const allFeatures = gb.getFeatures();
+    if (iamABCTester && model?.misc?.abcTesting?.abcEnable) {
 
-      let done = {};
-      Object.keys(allFeatures).map((key) => {
-        const result = gb.getFeatureValue(key, allFeatures[key].defaultValue);
-        done[key] = {
-          defaultValue: allFeatures[key].defaultValue,
-          result,
-        };
-      });
+      try {
+        const allFeatures = gb.getFeatures();
 
-      // Call the function to group by prefix
-      const groupedData = groupByPrefixAndStructure(done);
+        let done = {};
+        Object.keys(allFeatures).map((key) => {
+          const result = gb.getFeatureValue(key, allFeatures[key].defaultValue);
+          done[key] = {
+            defaultValue: allFeatures[key].defaultValue,
+            result,
+          };
+        });
 
-      updateModel({ ...groupedData });
+        // Call the function to group by prefix
+        const groupedData = groupByPrefixAndStructure(done);
+
+        updateModel({ ...groupedData });
+      } catch (error) {
+        if (debug) {
+          console.log(error);
+        }
+      }
     }
   };
 
@@ -116,7 +134,7 @@ const ABCProvider = ({ children, getModel, updateModel, model, analytic, debug =
     }
 
     evaluateFeatures();
-  }, [isReady, model.misc.abcTesting.iamABCTester]);
+  }, [isReady, model?.misc?.abcTesting?.iamABCTester]);
 
   return (
     <GrowthBookProvider growthbook={gb}>

@@ -72,32 +72,42 @@ function groupByPrefixAndStructure(data) {
 }
 
 var ABCProvider = function ABCProvider(_ref) {
+  var _model$misc4, _model$misc5, _model$misc7;
   var children = _ref.children,
     getModel = _ref.getModel,
     updateModel = _ref.updateModel,
     model = _ref.model,
     analytic = _ref.analytic,
     _ref$debug = _ref.debug,
-    debug = _ref$debug === void 0 ? false : _ref$debug;
+    debug = _ref$debug === void 0 ? false : _ref$debug,
+    _ref$event = _ref.event,
+    _ref$event2 = _ref$event === void 0 ? {} : _ref$event,
+    _ref$event2$eventType = _ref$event2.eventType,
+    eventType = _ref$event2$eventType === void 0 ? "view_screen" : _ref$event2$eventType,
+    _ref$event2$eventName = _ref$event2.eventName,
+    eventName = _ref$event2$eventName === void 0 ? "screen_name" : _ref$event2$eventName,
+    _ref$event2$eventValu = _ref$event2.eventValue,
+    eventValue = _ref$event2$eventValu === void 0 ? "abc-platform" : _ref$event2$eventValu;
   var _getModel = getModel(["misc"]),
     _getModel$misc$abcTes = _getModel.misc.abcTesting,
-    iamABCTester = _getModel$misc$abcTes.iamABCTester,
-    abcScope = _getModel$misc$abcTes.abcScope,
-    abcEndpoint = _getModel$misc$abcTes.abcEndpoint,
-    abcSdk = _getModel$misc$abcTes.abcSdk,
-    _getModel$misc$abcTes2 = _getModel$misc$abcTes.abcTimeout,
-    abcTimeout = _getModel$misc$abcTes2 === void 0 ? 30000 : _getModel$misc$abcTes2,
-    _getModel$misc$abcTes3 = _getModel$misc$abcTes.abcDefaultAttributes,
-    abcDefaultAttributes = _getModel$misc$abcTes3 === void 0 ? {} : _getModel$misc$abcTes3;
-
-  // console.log(iamABCTester, abcScope, abcSdk, "[ABCProvider] iamABCTester", abcEnable);
-
+    _getModel$misc$abcTes2 = _getModel$misc$abcTes === void 0 ? {} : _getModel$misc$abcTes,
+    _getModel$misc$abcTes3 = _getModel$misc$abcTes2.iamABCTester,
+    iamABCTester = _getModel$misc$abcTes3 === void 0 ? false : _getModel$misc$abcTes3,
+    _getModel$misc$abcTes4 = _getModel$misc$abcTes2.abcScope,
+    abcScope = _getModel$misc$abcTes4 === void 0 ? 888888 : _getModel$misc$abcTes4,
+    abcEndpoint = _getModel$misc$abcTes2.abcEndpoint,
+    abcSdk = _getModel$misc$abcTes2.abcSdk,
+    _getModel$misc$abcTes5 = _getModel$misc$abcTes2.abcTimeout,
+    abcTimeout = _getModel$misc$abcTes5 === void 0 ? 30000 : _getModel$misc$abcTes5,
+    _getModel$misc$abcTes6 = _getModel$misc$abcTes2.abcDefaultAttributes,
+    abcDefaultAttributes = _getModel$misc$abcTes6 === void 0 ? {} : _getModel$misc$abcTes6;
   var _useState = React.useState(false),
     isReady = _useState[0],
     setIsReady = _useState[1];
   var arrayChildren = React.Children.toArray(children);
   var gb = React.useMemo(function () {
-    if (iamABCTester) {
+    var _model$misc;
+    if (iamABCTester && model != null && (_model$misc = model.misc) != null && (_model$misc = _model$misc.abcTesting) != null && _model$misc.abcEnable) {
       // console.log(iamABCTester, "iamABCTesteriamABCTester useMemo");
       var _gb = new growthbookReact.GrowthBook({
         apiHost: abcEndpoint,
@@ -123,12 +133,12 @@ var ABCProvider = function ABCProvider(_ref) {
     }
   }, [abcEndpoint, iamABCTester]);
   React.useEffect(function () {
-    if (iamABCTester && model.misc.abcTesting.abcEnable) {
+    var _model$misc2, _model$misc3;
+    if (model != null && (_model$misc2 = model.misc) != null && (_model$misc2 = _model$misc2.abcTesting) != null && _model$misc2.iamABCTester && model != null && (_model$misc3 = model.misc) != null && (_model$misc3 = _model$misc3.abcTesting) != null && _model$misc3.abcEnable) {
       if (analytic && analytic instanceof Function) {
         try {
-          logEvent("view_screen", {
-            "screen_name": "abc-platform"
-          });
+          var _logEvent;
+          logEvent(eventType, (_logEvent = {}, _logEvent[eventName] = eventValue, _logEvent));
         } catch (error) {
           if (debug) {
             console.log(error);
@@ -144,22 +154,29 @@ var ABCProvider = function ABCProvider(_ref) {
         scope: abcScope
       }));
     }
-  }, [model.misc.abcTesting.abcEnable, model.misc.abcTesting.iamABCTester]);
+  }, [model == null || (_model$misc4 = model.misc) == null || (_model$misc4 = _model$misc4.abcTesting) == null ? void 0 : _model$misc4.abcEnable, model == null || (_model$misc5 = model.misc) == null || (_model$misc5 = _model$misc5.abcTesting) == null ? void 0 : _model$misc5.iamABCTester]);
   var evaluateFeatures = function evaluateFeatures() {
-    if (iamABCTester && model.misc.abcTesting.abcEnable) {
-      var allFeatures = gb.getFeatures();
-      var done = {};
-      Object.keys(allFeatures).map(function (key) {
-        var result = gb.getFeatureValue(key, allFeatures[key].defaultValue);
-        done[key] = {
-          defaultValue: allFeatures[key].defaultValue,
-          result: result
-        };
-      });
+    var _model$misc6;
+    if (iamABCTester && model != null && (_model$misc6 = model.misc) != null && (_model$misc6 = _model$misc6.abcTesting) != null && _model$misc6.abcEnable) {
+      try {
+        var allFeatures = gb.getFeatures();
+        var done = {};
+        Object.keys(allFeatures).map(function (key) {
+          var result = gb.getFeatureValue(key, allFeatures[key].defaultValue);
+          done[key] = {
+            defaultValue: allFeatures[key].defaultValue,
+            result: result
+          };
+        });
 
-      // Call the function to group by prefix
-      var groupedData = groupByPrefixAndStructure(done);
-      updateModel(_extends({}, groupedData));
+        // Call the function to group by prefix
+        var groupedData = groupByPrefixAndStructure(done);
+        updateModel(_extends({}, groupedData));
+      } catch (error) {
+        if (debug) {
+          console.log(error);
+        }
+      }
     }
   };
   React.useEffect(function () {
@@ -167,7 +184,7 @@ var ABCProvider = function ABCProvider(_ref) {
       return;
     }
     evaluateFeatures();
-  }, [isReady, model.misc.abcTesting.iamABCTester]);
+  }, [isReady, model == null || (_model$misc7 = model.misc) == null || (_model$misc7 = _model$misc7.abcTesting) == null ? void 0 : _model$misc7.iamABCTester]);
   return /*#__PURE__*/React__default["default"].createElement(growthbookReact.GrowthBookProvider, {
     growthbook: gb
   }, React.Children.map(arrayChildren, function (child) {

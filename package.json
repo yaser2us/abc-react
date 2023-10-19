@@ -1,6 +1,6 @@
 {
   "name": "abc-react",
-  "version": "1.0.22",
+  "version": "1.0.26",
   "description": "It is abc testing platform.",
   "author": "yaser2us",
   "license": "MIT",
@@ -43,9 +43,9 @@
     "dist"
   ],
   "dependencies": {
-    "@growthbook/growthbook-react": "^0.18.0",
-    "url-parse": "^1.5.10",
-    "lodash": "^4.17.20"
+    "@growthbook/growthbook-react": "0.18.0",
+    "url-parse": "1.5.10",
+    "lodash": "4.17.20"
   },
   "microbundle": {
     "entries": "src/index.js",
