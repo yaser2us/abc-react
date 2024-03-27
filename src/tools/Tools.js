@@ -27,7 +27,7 @@ function mergeHeaders(originalHeaders = {}, newHeaders = {}) {
     return modifiedHeaders;
 }
 
-function groupByPrefixAndStructure(data) {
+function groupByPrefixAndStructureV1(data) {
     let grouped = {};
 
     for (const key in data) {
@@ -46,6 +46,45 @@ function groupByPrefixAndStructure(data) {
                 // Use "defaultValue" as key and "result" as value for "api" prefix
                 grouped[prefix][defaultValue] = result;
             } else if (prefix === "response") {
+                const result = valueObject.result;
+
+                grouped[prefix] = {
+                    ...grouped[prefix],
+                    ...result,
+                };
+            } else if (prefix === "context") {
+                const result = valueObject.result;
+
+                grouped = {
+                    ...grouped,
+                    ...result,
+                };
+            }
+        }
+    }
+
+    return grouped;
+}
+
+function groupByPrefixAndStructure(data) {
+    let grouped = {};
+
+    for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+            const parts = key.split("-");
+            const prefix = parts[0];
+            const valueObject = data[key];
+
+            if (!grouped[prefix]) {
+                grouped[prefix] = {};
+            }
+
+            if (prefix === "api") {
+                const defaultValue = valueObject.defaultValue;
+                const result = valueObject.result;
+                // Use "defaultValue" as key and "result" as value for "api" prefix
+                grouped[prefix][defaultValue] = result;
+            } else if (prefix === "response" || prefix === "navigation") {
                 const result = valueObject.result;
 
                 grouped[prefix] = {
