@@ -96,10 +96,12 @@ const ABCProvider = ({
       });
       gb.setAttributes({
         ...abcDefaultAttributes,
+        ...(model?.user && model.user || {}),
+        ...(model?.cohort && model?.cohort || {}),
         scope: abcScope
       });
     }
-  }, [model?.misc?.abcTesting?.abcEnable, model?.misc?.abcTesting?.iamABCTester]);
+  }, [model?.misc?.abcTesting?.abcEnable, model?.misc?.abcTesting?.iamABCTester, model?.user, model?.cohort]);
 
   const evaluateFeatures = () => {
     if (iamABCTester && model?.misc?.abcTesting?.abcEnable) {
