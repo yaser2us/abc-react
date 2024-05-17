@@ -15,12 +15,12 @@ import {
   groupByPrefixAndStructure
 } from "../tools"
 
-const ABCProvider = ({ 
-  children, 
-  getModel, 
-  updateModel, 
+const ABCProvider = ({
+  children,
+  getModel,
+  updateModel,
   model,
-  analytic, 
+  analytic,
   debug = false,
   event: {
     eventType = "view_screen",
@@ -59,12 +59,25 @@ const ABCProvider = ({
           // subscribeToChanges: true,
           // Only required for A/B testing
           // Called every time a user is put into an experiment
-          // trackingCallback: (experiment, result) => {
-          //   console.log("Experiment Viewed", {
-          //     experimentId: experiment.key,
-          //     variationId: result.key,
-          //   });
-          // },
+          trackingCallback: (experiment, result) => {
+            if (analytic && analytic instanceof Function) {
+              try {
+                console.log("[abc] abc-experiment-done", {
+                  experimentId: experiment.key,
+                  variationId: result.key,
+                });
+                analytic("abc-experiment-done", {
+                  experimentId: experiment?.key,
+                  variationId: result?.key,
+                });
+              } catch (error) {
+                if (debug) {
+                  console.log('[abc]', error);
+                }
+              }
+            }
+            
+          },
           // onFeatureUsage: (featureKey, result) => {
           //   console.log("feature", featureKey, "has value", result.value);
           // },
@@ -79,12 +92,12 @@ const ABCProvider = ({
     if (model?.misc?.abcTesting?.iamABCTester && model?.misc?.abcTesting?.abcEnable) {
       if (analytic && analytic instanceof Function) {
         try {
-          logEvent(eventType, {
+          analytic(eventType, {
             [eventName]: eventValue
           });
         } catch (error) {
           if (debug) {
-            console.log(error);
+            console.log('[abc]', error);
           }
         }
       }
@@ -124,7 +137,7 @@ const ABCProvider = ({
         updateModel({ ...groupedData });
       } catch (error) {
         if (debug) {
-          console.log(error);
+          console.log('[abc]', error);
         }
       }
     }

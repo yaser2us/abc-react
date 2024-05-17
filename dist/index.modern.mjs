@@ -98,19 +98,31 @@ const ABCProvider = ({
       // console.log(iamABCTester, "iamABCTesteriamABCTester useMemo");
       const gb = new GrowthBook({
         apiHost: abcEndpoint,
-        clientKey: abcSdk
+        clientKey: abcSdk,
         // Enable easier debugging during development
         // enableDevMode: true,
         // Update the instance in realtime as features change in GrowthBook
         // subscribeToChanges: true,
         // Only required for A/B testing
         // Called every time a user is put into an experiment
-        // trackingCallback: (experiment, result) => {
-        //   console.log("Experiment Viewed", {
-        //     experimentId: experiment.key,
-        //     variationId: result.key,
-        //   });
-        // },
+        trackingCallback: (experiment, result) => {
+          if (analytic && analytic instanceof Function) {
+            try {
+              console.log("[abc] abc-experiment-done", {
+                experimentId: experiment.key,
+                variationId: result.key
+              });
+              analytic("abc-experiment-done", {
+                experimentId: experiment == null ? void 0 : experiment.key,
+                variationId: result == null ? void 0 : result.key
+              });
+            } catch (error) {
+              if (_debug) {
+                console.log('[abc]', error);
+              }
+            }
+          }
+        }
         // onFeatureUsage: (featureKey, result) => {
         //   console.log("feature", featureKey, "has value", result.value);
         // },
@@ -124,12 +136,12 @@ const ABCProvider = ({
     if (model != null && (_model$misc2 = model.misc) != null && (_model$misc2 = _model$misc2.abcTesting) != null && _model$misc2.iamABCTester && model != null && (_model$misc3 = model.misc) != null && (_model$misc3 = _model$misc3.abcTesting) != null && _model$misc3.abcEnable) {
       if (analytic && analytic instanceof Function) {
         try {
-          logEvent(_eventType, {
+          analytic(_eventType, {
             [_eventName]: _eventValue
           });
         } catch (error) {
           if (_debug) {
-            console.log(error);
+            console.log('[abc]', error);
           }
         }
       }
@@ -162,7 +174,7 @@ const ABCProvider = ({
         updateModel(_extends({}, groupedData));
       } catch (error) {
         if (_debug) {
-          console.log(error);
+          console.log('[abc]', error);
         }
       }
     }
