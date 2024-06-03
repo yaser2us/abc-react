@@ -90,7 +90,7 @@ const ABCProvider = ({
       } = {}
     }
   } = getModel(["misc"]);
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState("FALSE");
   const arrayChildren = Children.toArray(children);
   const gb = useMemo(() => {
     var _model$misc;
@@ -145,10 +145,10 @@ const ABCProvider = ({
           }
         }
       }
-      gb.loadFeatures({
+      gb.init({
         timeout: abcTimeout
       }).then(() => {
-        setIsReady(true);
+        setIsReady(Date.now());
       });
       gb.setAttributes(_extends({}, abcDefaultAttributes, (model == null ? void 0 : model.user) && model.user || {}, (model == null ? void 0 : model.cohort) && (model == null ? void 0 : model.cohort) || {}, {
         scope: abcScope
@@ -180,7 +180,7 @@ const ABCProvider = ({
     }
   };
   useEffect(() => {
-    if (!isReady) {
+    if (Boolean(isReady === "FALSE")) {
       return;
     }
     evaluateFeatures();

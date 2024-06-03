@@ -101,7 +101,7 @@ var ABCProvider = function ABCProvider(_ref) {
     abcTimeout = _getModel$misc$abcTes5 === void 0 ? 30000 : _getModel$misc$abcTes5,
     _getModel$misc$abcTes6 = _getModel$misc$abcTes2.abcDefaultAttributes,
     abcDefaultAttributes = _getModel$misc$abcTes6 === void 0 ? {} : _getModel$misc$abcTes6;
-  var _useState = React.useState(false),
+  var _useState = React.useState("FALSE"),
     isReady = _useState[0],
     setIsReady = _useState[1];
   var arrayChildren = React.Children.toArray(children);
@@ -157,10 +157,10 @@ var ABCProvider = function ABCProvider(_ref) {
           }
         }
       }
-      gb.loadFeatures({
+      gb.init({
         timeout: abcTimeout
       }).then(function () {
-        setIsReady(true);
+        setIsReady(Date.now());
       });
       gb.setAttributes(_extends({}, abcDefaultAttributes, (model == null ? void 0 : model.user) && model.user || {}, (model == null ? void 0 : model.cohort) && (model == null ? void 0 : model.cohort) || {}, {
         scope: abcScope
@@ -192,7 +192,7 @@ var ABCProvider = function ABCProvider(_ref) {
     }
   };
   React.useEffect(function () {
-    if (!isReady) {
+    if (Boolean(isReady === "FALSE")) {
       return;
     }
     evaluateFeatures();
