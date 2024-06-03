@@ -42,7 +42,7 @@ const ABCProvider = ({
     },
   } = getModel(["misc"]);
 
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState("FALSE");
 
   const arrayChildren = Children.toArray(children);
 
@@ -102,10 +102,10 @@ const ABCProvider = ({
         }
       }
 
-      gb.loadFeatures({
+      gb.init({
         timeout: abcTimeout,
       }).then(() => {
-        setIsReady(true);
+        setIsReady(Date.now());
       });
       gb.setAttributes({
         ...abcDefaultAttributes,
@@ -144,7 +144,7 @@ const ABCProvider = ({
   };
 
   useEffect(() => {
-    if (!isReady) {
+    if (Boolean(isReady === "FALSE")) {
       return;
     }
 
