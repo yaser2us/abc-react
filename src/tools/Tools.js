@@ -86,7 +86,6 @@ function groupByPrefixAndStructure(data) {
                 grouped[prefix][defaultValue] = result;
             } else if (prefix === "response" || prefix === "navigation") {
                 const result = valueObject.result;
-
                 grouped[prefix] = {
                     ...grouped[prefix],
                     ...result,
