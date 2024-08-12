@@ -4,18 +4,13 @@ import URL from 'url-parse';
 import { merge } from 'lodash';
 
 function _extends() {
-  _extends = Object.assign ? Object.assign.bind() : function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
+  return _extends = Object.assign ? Object.assign.bind() : function (n) {
+    for (var e = 1; e < arguments.length; e++) {
+      var t = arguments[e];
+      for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
     }
-    return target;
-  };
-  return _extends.apply(this, arguments);
+    return n;
+  }, _extends.apply(null, arguments);
 }
 
 function mapUrls(url, urlMappings) {
@@ -108,11 +103,11 @@ const ABCProvider = ({
         trackingCallback: (experiment, result) => {
           if (analytic && analytic instanceof Function) {
             try {
-              console.log("[abc] abc-experiment-done", {
+              console.log("[abc] abc_experiment_done", {
                 experimentId: experiment.key,
                 variationId: result.key
               });
-              analytic("abc-experiment-done", {
+              analytic("abc_experiment_done", {
                 experimentId: experiment == null ? void 0 : experiment.key,
                 variationId: result == null ? void 0 : result.key
               });
@@ -127,7 +122,6 @@ const ABCProvider = ({
         //   console.log("feature", featureKey, "has value", result.value);
         // },
       });
-
       return gb;
     }
   }, [abcEndpoint, iamABCTester]);
