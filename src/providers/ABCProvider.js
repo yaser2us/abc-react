@@ -134,8 +134,7 @@ const ABCProvider = ({
         // Call the function to group by prefix
         const groupedData = groupByPrefixAndStructure(done);
 
-        // updateModel({ ...groupedData });
-        updateModel({ "testValue": "hello" });
+        updateModel({ ...groupedData });
       } catch (error) {
         if (debug) {
           console.log('[abc]', error);
