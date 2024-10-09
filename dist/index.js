@@ -40,6 +40,7 @@ function addQuarantineSegmentToUrl(originalUrl, quarantineSegment) {
   return modifiedUrl;
 }
 function groupByPrefixAndStructure(data) {
+  console.log("this data: ", data);
   var grouped = {};
   for (var key in data) {
     if (data.hasOwnProperty(key)) {
