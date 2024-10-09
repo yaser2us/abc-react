@@ -31,6 +31,16 @@ function addQuarantineSegmentToUrl(originalUrl, quarantineSegment = "") {
   const modifiedUrl = url.toString();
   return modifiedUrl;
 }
+function mergeDeep(target, source) {
+  for (let key in source) {
+    // If both target and source have the same key, and their values are objects, merge them recursively
+    if (source[key] instanceof Object && key in target) {
+      Object.assign(source[key], mergeDeep(target[key], source[key]));
+    }
+  }
+  // Merge source into target
+  return Object.assign(target || {}, source);
+}
 function groupByPrefixAndStructure(data) {
   console.log("this data: ", JSON.stringify(data, null, 0));
   let grouped = {};
@@ -42,17 +52,15 @@ function groupByPrefixAndStructure(data) {
       if (!grouped[prefix]) {
         grouped[prefix] = {};
       }
+      const defaultValue = valueObject.defaultValue;
+      const result = valueObject.result;
       if (prefix === "api") {
-        const defaultValue = valueObject.defaultValue;
-        const result = valueObject.result;
         // Use "defaultValue" as key and "result" as value for "api" prefix
         grouped[prefix][defaultValue] = result;
       } else if (prefix === "response" || prefix === "navigation") {
-        const result = valueObject.result;
         grouped[prefix] = _extends({}, grouped[prefix], result);
       } else if (prefix === "context") {
-        const result = valueObject.result;
-        grouped = _extends({}, grouped, result);
+        grouped[prefix] = mergeDeep(grouped[prefix], result);
       }
     }
   }

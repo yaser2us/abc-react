@@ -39,6 +39,16 @@ function addQuarantineSegmentToUrl(originalUrl, quarantineSegment) {
   var modifiedUrl = url.toString();
   return modifiedUrl;
 }
+function mergeDeep(target, source) {
+  for (var key in source) {
+    // If both target and source have the same key, and their values are objects, merge them recursively
+    if (source[key] instanceof Object && key in target) {
+      Object.assign(source[key], mergeDeep(target[key], source[key]));
+    }
+  }
+  // Merge source into target
+  return Object.assign(target || {}, source);
+}
 function groupByPrefixAndStructure(data) {
   console.log("this data: ", JSON.stringify(data, null, 0));
   var grouped = {};
@@ -50,17 +60,15 @@ function groupByPrefixAndStructure(data) {
       if (!grouped[prefix]) {
         grouped[prefix] = {};
       }
+      var defaultValue = valueObject.defaultValue;
+      var result = valueObject.result;
       if (prefix === "api") {
-        var defaultValue = valueObject.defaultValue;
-        var result = valueObject.result;
         // Use "defaultValue" as key and "result" as value for "api" prefix
         grouped[prefix][defaultValue] = result;
       } else if (prefix === "response" || prefix === "navigation") {
-        var _result3 = valueObject.result;
-        grouped[prefix] = _extends({}, grouped[prefix], _result3);
+        grouped[prefix] = _extends({}, grouped[prefix], result);
       } else if (prefix === "context") {
-        var _result4 = valueObject.result;
-        grouped = _extends({}, grouped, _result4);
+        grouped[prefix] = mergeDeep(grouped[prefix], result);
       }
     }
   }
