@@ -68,7 +68,7 @@ function groupByPrefixAndStructureV1(data) {
 
 function groupByPrefixAndStructure(data) {
 
-    console.log("this data: ", data);
+    console.log("this data: ", JSON.stringify(data, null, 0));
     
     let grouped = {};
 
