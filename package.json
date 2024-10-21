@@ -43,7 +43,7 @@
     "dist"
   ],
   "dependencies": {
-    "@growthbook/growthbook-react": "0.18.0",
+    "@growthbook/growthbook-react": "1.0.0",
     "url-parse": "1.5.10",
     "lodash": "4.17.20"
   },
