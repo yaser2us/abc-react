@@ -42,6 +42,8 @@ const ABCProvider = ({
     },
   } = getModel(["misc"]);
 
+  console.log("abcDefaultAttributes: ", abcDefaultAttributes);
+  
   const [isReady, setIsReady] = useState("FALSE");
 
   const arrayChildren = Children.toArray(children);
