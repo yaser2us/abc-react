@@ -95,7 +95,7 @@ function groupByPrefixAndStructure(data) {
                 const result = valueObject.result;
 
                 // deep merge context values
-                grouped = merge({}, grouped, result});
+                grouped = merge({}, grouped, result);
             }
         }
     }
