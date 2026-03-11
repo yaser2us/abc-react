@@ -1,8 +1,18 @@
 # abc-react
 
-> It is abc testing platform.
+> A/B testing platform for React, powered by [GrowthBook](https://www.growthbook.io/).
 
 [![NPM](https://img.shields.io/npm/v/abc-react.svg)](https://www.npmjs.com/package/abc-react) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
+## Overview
+
+`abc-react` provides three main capabilities:
+
+| Export | Purpose |
+|---|---|
+| `ABCProvider` | React context provider that initializes GrowthBook, evaluates feature flags, and groups results by prefix (`api`, `response`, `navigation`, `context`). |
+| `requestInterceptor` | Rewrites outgoing request URLs (and optionally prepends a path prefix) based on A/B test results. |
+| `responseInterceptor` | Merges alternative response data into Axios responses based on A/B test results. |
 
 ## Install
 
@@ -10,94 +20,235 @@
 npm install --save abc-react
 ```
 
-Here's a documentation draft for the `ABCProvider` component, explaining its purpose, props, internal logic, and usage.
+### Peer Dependencies
+
+| Package | Supported versions |
+|---|---|
+| `react` | `^16.13.1 \|\| ^17.x \|\| ^18.2.0` |
+
+### Bundled Dependencies
+
+`@growthbook/growthbook-react@1.0.0`, `lodash@4.17.20`, `url-parse@1.5.10`
 
 ---
 
-# ABCProvider Component
+## Exports
 
-The `ABCProvider` component is a React wrapper that integrates with GrowthBook, allowing for A/B testing and feature flagging. It manages the initialization of the GrowthBook instance and evaluates features based on the user's model and attributes. This component provides an easy way to set up A/B testing in a React application while ensuring that analytic events are tracked and features are evaluated accordingly.
+```js
+import { ABCProvider, requestInterceptor, responseInterceptor } from 'abc-react';
+```
 
-## Props
+---
 
-### Required Props
+## ABCProvider
 
-- **children**: ReactNode  
-  The child components that will be wrapped by the `ABCProvider`.
+A React component that wraps your app with `GrowthBookProvider`. It:
 
-### Optional Props
+1. Creates a `GrowthBook` instance using config from `model.misc.abcTesting`.
+2. Sets user/cohort attributes on the instance.
+3. Evaluates all feature flags once GrowthBook is ready.
+4. Groups results by feature-key prefix (`api-*`, `response-*`, `navigation-*`, `context-*`) and passes the grouped data back via `updateModel`.
+5. Fires analytics events on experiment assignment and screen view.
 
-- **getModel**: Function  
-  A function that retrieves the model data used for determining A/B testing settings and user attributes.
+### Props
 
-- **updateModel**: Function  
-  A function that updates the model data, typically with the results of the A/B tests.
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `children` | `ReactNode` | Yes | — | Child components to render. |
+| `getModel` | `(keys: string[]) => object` | Yes | — | Returns slices of the current app model. Must support `getModel(["misc"])` returning `{ misc: { abcTesting: { ... } } }`. |
+| `updateModel` | `(data: object) => void` | Yes | — | Callback that receives grouped feature-flag results to merge into app state. |
+| `model` | `object` | Yes | — | The current app model. The provider reacts to changes in `model.misc.abcTesting`, `model.user`, and `model.cohort`. |
+| `analytic` | `(eventName: string, payload: object) => void` | No | — | Analytics callback. Called on screen view and each experiment assignment. |
+| `debug` | `boolean` | No | `false` | Enables `console.log` output for errors and diagnostics. |
+| `event` | `object` | No | see below | Customises the screen-view analytics event. |
 
-- **model**: Object  
-  An object representing the current model, which includes user information, cohort data, and A/B testing settings.
+#### `event` shape
 
-- **analytic**: Function  
-  A callback function for tracking analytic events related to A/B testing. If provided, it will be invoked on experiment completion and screen views.
+| Field | Type | Default |
+|---|---|---|
+| `eventType` | `string` | `"view_screen"` |
+| `eventName` | `string` | `"screen_name"` |
+| `eventValue` | `string` | `"abc-platform"` |
 
-- **debug**: Boolean  
-  A flag that, when set to `true`, enables additional console logging for debugging purposes. Defaults to `false`.
+#### `model.misc.abcTesting` shape
 
-- **event**: Object  
-  An object for customizing analytic event parameters, with the following optional fields:
-  - **eventType**: String (default: `"view_screen"`)  
-    The type of event to log (e.g., "view_screen").
-  - **eventName**: String (default: `"screen_name"`)  
-    The name of the event (e.g., "screen_name").
-  - **eventValue**: String (default: `"abc-platform"`)  
-    The value associated with the event.
+These fields are read from `getModel(["misc"]).misc.abcTesting`:
 
-## Internal Logic
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `iamABCTester` | `boolean` | `false` | Master toggle — must be `true` to enable A/B testing. |
+| `abcEnable` | `boolean` | — | Secondary toggle checked at runtime. |
+| `abcEndpoint` | `string` | — | GrowthBook API host URL. |
+| `abcSdk` | `string` | — | GrowthBook client key. |
+| `abcScope` | `number` | `888888` | Scope attribute sent to GrowthBook. |
+| `abcTimeout` | `number` | `30000` | Timeout (ms) for GrowthBook init. |
+| `abcDefaultAttributes` | `object` | `{}` | Extra attributes merged into the GrowthBook attribute set. |
 
-1. **Initialization**: 
-   - The component initializes a GrowthBook instance based on the user's A/B testing settings. This includes setting the API host and client key.
-   - It sets up a tracking callback to log experiment completions and send analytic events if an `analytic` function is provided.
+### Feature-Key Prefix Conventions
 
-2. **Effect Hooks**:
-   - The component uses `useEffect` to initialize GrowthBook when the component mounts and when the model changes.
-   - It tracks when the GrowthBook instance is ready by updating the `isReady` state.
+Features returned by GrowthBook are grouped by the prefix before the first `-`:
 
-3. **Feature Evaluation**:
-   - The component evaluates all available features using the GrowthBook instance and updates the model with the results grouped by prefix.
+| Prefix | Behaviour |
+|---|---|
+| `api-*` | Maps `defaultValue → result` (URL replacement dictionary for `requestInterceptor`). |
+| `response-*` | Spreads `result` into a `response` dictionary (for `responseInterceptor`). |
+| `navigation-*` | Spreads `result` into a `navigation` dictionary. |
+| `context-*` | Deep-merges `result` into the root of the grouped output. |
 
-4. **Error Handling**:
-   - Error handling is implemented throughout to catch and log errors to the console if debugging is enabled.
-
-## Usage
-
-To use the `ABCProvider`, wrap your components within it and provide the necessary props. Below is an example of how to integrate `ABCProvider` in a React application:
+### Example
 
 ```jsx
 import React from 'react';
-import ABCProvider from './path/to/ABCProvider';
+import { ABCProvider } from 'abc-react';
 
 const App = () => {
-  const getModel = () => {
-    // Logic to retrieve the model
-  };
+  const getModel = (keys) => ({
+    misc: {
+      abcTesting: {
+        iamABCTester: true,
+        abcEnable: true,
+        abcEndpoint: 'https://growthbook.example.com',
+        abcSdk: 'sdk-abc123',
+      },
+    },
+  });
 
   const updateModel = (data) => {
-    // Logic to update the model
+    // data = { api: { ... }, response: { ... }, navigation: { ... }, ...context }
+    console.log('Feature flags evaluated:', data);
   };
 
-  const analytic = (event, data) => {
-    // Logic for tracking analytics
+  const analytic = (event, payload) => {
+    console.log('Analytics:', event, payload);
   };
 
   return (
     <ABCProvider
       getModel={getModel}
       updateModel={updateModel}
-      model={{ /* model data */ }}
+      model={{
+        misc: { abcTesting: { iamABCTester: true, abcEnable: true } },
+        user: { id: 'u1' },
+        cohort: { segment: 'beta' },
+      }}
       analytic={analytic}
-      debug={true}
+      debug
     >
-      {/* Child components go here */}
+      <YourApp />
     </ABCProvider>
+  );
+};
+```
+
+---
+
+## Interceptors
+
+Designed for use with Axios interceptors, but work with any object that follows the same shape.
+
+### `requestInterceptor({ getModel, request, debug? })`
+
+Rewrites `request.url` using the `api` dictionary produced by `ABCProvider`.
+
+| Param | Type | Description |
+|---|---|---|
+| `getModel` | `function` | Must return `{ api: { [originalUrl]: replacementUrl } }` when called with `["api"]`, and a `requests` config when called with `"requests"`. |
+| `request` | `object` | Axios request config (must have a `url` property). |
+| `debug` | `boolean` | Optional. Enables logging. |
+
+**`requests` config** (returned by `getModel("requests")`):
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `enabled` | `boolean` | `false` | When `true`, prepends `prefix` to the URL path. |
+| `prefix` | `string` | `""` | Path segment inserted after the domain (e.g. `"quarantine"`). |
+| `headers` | `object` | `{}` | _(reserved, not currently merged)_ |
+
+Returns the (possibly modified) `request`.
+
+### `responseInterceptor({ getModel, response, debug? })`
+
+Deep-merges alternative data into `response` using the `response` dictionary produced by `ABCProvider`.
+
+| Param | Type | Description |
+|---|---|---|
+| `getModel` | `function` | Must return `{ response: { [url]: mergeData } }` when called with `["response"]`. |
+| `response` | `object` | Axios response object. Must have `config.url`. |
+| `debug` | `boolean` | Optional. Enables logging. |
+
+Returns the (possibly modified) `response`.
+
+### Axios Integration Example
+
+```js
+import axios from 'axios';
+import { requestInterceptor, responseInterceptor } from 'abc-react';
+
+const api = axios.create();
+
+api.interceptors.request.use((request) =>
+  requestInterceptor({ getModel, request, debug: false })
+);
+
+api.interceptors.response.use((response) =>
+  responseInterceptor({ getModel, response, debug: false })
+);
+```
+
+---
+
+## Utility Functions (internal)
+
+Exported from `src/tools` — not part of the public API but available internally:
+
+| Function | Description |
+|---|---|
+| `mapUrls(url, urlMappings)` | Returns `urlMappings[url]` if it exists, otherwise the original `url`. |
+| `addQuarantineSegmentToUrl(url, segment)` | Inserts a path segment after the domain (e.g. `/segment/original/path`). |
+| `mergeHeaders(original, newHeaders)` | Deep-merges two header objects via `lodash/merge`. |
+| `groupByPrefixAndStructure(data)` | Groups evaluated feature flags by their key prefix (`api`, `response`, `navigation`, `context`). |
+
+---
+
+## Development
+
+```bash
+# Build the library (outputs to dist/)
+npm run build
+
+# Watch mode during development
+npm start
+
+# Run the example app
+cd example && npm start
+# — or from root —
+npm run love
+
+# Run tests
+npm test
+
+# Deploy example to GitHub Pages
+npm run deploy
+```
+
+### Project Structure
+
+```
+src/
+├── index.js                  # Public entry — exports ABCProvider, requestInterceptor, responseInterceptor
+├── providers/
+│   └── ABCProvider.js        # GrowthBook wrapper component
+├── interceptors/
+│   └── Interceptors.js       # Request & response interceptor functions
+└── tools/
+    └── Tools.js              # URL mapping, header merging, feature grouping utilities
+example/
+└── src/App.js                # Minimal usage example
+```
+
+## License
+
+MIT © [yaser2us](https://github.com/yaser2us)
   );
 };
 
