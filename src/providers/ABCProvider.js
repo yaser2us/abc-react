@@ -62,11 +62,11 @@ const ABCProvider = ({
           trackingCallback: (experiment, result) => {
             if (analytic && analytic instanceof Function) {
               try {
-                console.log("[abc] abc-experiment-done", {
+                console.log("[abc] abc_experiment_done", {
                   experimentId: experiment.key,
                   variationId: result.key,
                 });
-                analytic("abc-experiment-done", {
+                analytic("abc_experiment_done", {
                   experimentId: experiment?.key,
                   variationId: result?.key,
                 });
