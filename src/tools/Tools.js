@@ -1,4 +1,5 @@
 import URL from "url-parse";
+import { merge } from "lodash";
 
 function mapUrls(url, urlMappings) {
     if (urlMappings[url]) {
@@ -86,7 +87,6 @@ function groupByPrefixAndStructure(data) {
                 grouped[prefix][defaultValue] = result;
             } else if (prefix === "response" || prefix === "navigation") {
                 const result = valueObject.result;
-
                 grouped[prefix] = {
                     ...grouped[prefix],
                     ...result,
@@ -94,10 +94,8 @@ function groupByPrefixAndStructure(data) {
             } else if (prefix === "context") {
                 const result = valueObject.result;
 
-                grouped = {
-                    ...grouped,
-                    ...result,
-                };
+                // deep merge context values
+                grouped = merge({}, grouped, result);
             }
         }
     }
